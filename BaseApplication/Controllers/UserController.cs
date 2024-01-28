@@ -65,7 +65,7 @@ namespace BaseApplication.Controllers
             return View(userModel);
         }
 
-        [HttpGet]
+        [HttpPost]
         public JsonResult GetEmailOtp(string userEmail)
         {
             string randomOtp = string.Empty;

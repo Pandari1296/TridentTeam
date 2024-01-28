@@ -6,13 +6,20 @@ namespace BaseApplication.Models
 {
     public class UserModel
     {
+        [Display(Name = "First Name")]
+        [Required(ErrorMessage = "The first name is required")]
         public string? FirstName { get; set; }
 
+        [Display(Name = "Last Name")]
+        [Required(ErrorMessage = "The last name is required")]
         public string? LastName { get; set; }
+
 
         [Display(Name = "Email address")]
         [Required(ErrorMessage = "The email address is required")]
-        [EmailAddress(ErrorMessage = "Invalid Email Address")]
+        //[RegularExpression(@"^(?i)([a-zA-Z0-9._%+-]+@(TeamTrident\.com|uitts\.com|tapinnov\.com))$", ErrorMessage = "Invalid email format")]
+        //[EmailAddress(ErrorMessage = "Invalid Email Address")]
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@(TeamTrident\.com|uitts\.com|tapinnov\.com)$", ErrorMessage = "Invalid email format. Only @TeamTrident.com,@uitts.com and @tapinnov.com domains are allowed.")]
 
         public string? UserEmail { get; set; }
 
