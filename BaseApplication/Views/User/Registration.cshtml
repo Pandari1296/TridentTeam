@@ -1,0 +1,93 @@
+﻿@model BaseApplication.Models.UserModel
+
+@{
+    ViewData["Title"] = "Registration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Registration</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+
+        <div class="row" id="divRegistration">
+            <div class="col-lg-11">
+                <form asp-action="Registration" id="formRegistration">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="FirstName" class="control-label"></label>
+                        <input asp-for="FirstName" class="form-control" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LastName" class="control-label"></label>
+                        <input asp-for="LastName" class="form-control" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="UserEmail" class="control-label"></label>
+                        <input asp-for="UserEmail" class="form-control" />
+                        <span asp-validation-for="UserEmail" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Password" class="control-label"></label>
+                        <input asp-for="Password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ConfirmPassword" class="control-label"></label>
+                        <input asp-for="ConfirmPassword" class="form-control" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+                    <div class="form-group m-2">
+                        <input type="button" value="Register" class="btn btn-primary" id="btnRegister" />
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row" id="divOtp" style="display:none;">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label class="alert-success">We have sent an 6 digit OTP to your entered email <span class="alert-danger" id="spanEmailText"></span>. <br /></label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label class="control-label">Please enter the OTP in given box below :</label>
+                        <input type="text" class="form-control" id="txtOtp" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <input type="button" value="Validate" class="btn btn-primary" id="btnOtpSubmit" />
+                        <input type="submit" value="Create" class="btn btn-primary" id="btnSubmit" style="display:none;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#btnRegister").click(function () {
+                $("#formRegistration").validate();
+                $.get("GetEmailOtp/", { userEmail: $("#UserEmail").val() }, function (data) {
+                    $("#spanEmailText").text($("#UserEmail").val());
+                    $("#divOtp").show();
+                    $("#divRegistration").hide();
+                });
+            });
+            $("#btnOtpSubmit").click(function () { 
+                $("#formRegistration").submit();
+            });
+        });
+    </script>
+}

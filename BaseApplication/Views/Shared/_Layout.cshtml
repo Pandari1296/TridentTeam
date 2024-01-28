@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Trident Team</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/BaseApplication.styles.css" asp-append-version="true" />
+    <link href="~/css/all.css" rel="stylesheet" asp-append-version="true" />
+</head>
+<body data-new-gr-c-s-check-loaded="14.1152.0" data-gr-ext-installed="">
+    <div id="wrapper">
+        <header id="header">
+            <div class="header-holder">
+                <strong class="logo"><a asp-controller="Home" asp-action="Index">Team Trident</a></strong>
+                <div class="header-right">
+                    <nav id="nav" class="menu-main-menu-container">
+                        <ul id="menu-main-menu" class="menu">
+                            @{
+                                int userId = Context.Session.GetInt32("UserId") ?? 0;
+                                @if (userId > 0)
+                                {
+                                    <li id="menu-item-359" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-359 "><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+                                    <li id="menu-item-33" class="last menu-item menu-item-type-post_type menu-item-object-page active page_item page-item-4 current_page_item menu-item-33">
+                                        <a asp-controller="Home" asp-action="ContactUs">Contact Us</a>
+                                    </li>
+                                    <li id="menu-item-359" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-359 "><a asp-area="" asp-controller="Home" asp-action="Logout">Logout</a></li>
+                                }
+                                else
+                                {
+                                    <li id="menu-item-33" class="last menu-item menu-item-type-post_type menu-item-object-page active page_item page-item-4 current_page_item menu-item-33">
+                                        <a asp-controller="User" asp-action="Index">Login</a>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <div id="main">
+            <div class="container">
+                @RenderBody()
+            </div>
+        </div>
+
+
+        <footer id="footer">
+            <div class="footer-bottom">
+                <div class="bg-stretch">
+                    <img src="https://www.teamtrident.com/wp-content/themes/teamtrident/images/bg-footer.jpg" alt="image description" style="width: 1903px; height: 230.599px; margin-top: -7.29941px; margin-left: 0px;">
+                </div>
+                <div class="holder">
+                    <span><a href="https://www.facebook.com/TeamTridentLLC" target="_blank"><img src="/wp-content/uploads/2014/05/facebook2.png"></a></span>
+                    <span><a href="https://www.linkedin.com/company/team-trident" target="_blank"><img src="/wp-content/uploads/2014/05/linkedin2.png"></a></span>
+                    <ul class="footer-logos">
+                        <li><a href="http://www.imca-int.com/" target="_blank"><img width="118" height="67" src="https://www.teamtrident.com/wp-content/uploads/2014/03/logo1-e1464888573965.png" class="attachment-logo-thumbnail size-logo-thumbnail" alt=""></a></li>
+                        <li><a href="https://www.mtsociety.org/" target="_blank"><img width="155" height="73" src="https://www.teamtrident.com/wp-content/uploads/2014/03/logo2.png" class="attachment-logo-thumbnail size-logo-thumbnail" alt=""></a></li>
+                        <li><a href="https://www.isnetworld.com/" target="_blank"><img width="80" height="80" src="https://www.teamtrident.com/wp-content/uploads/2016/06/ISN-Logo-sm.png" class="attachment-logo-thumbnail size-logo-thumbnail" alt="" srcset="https://www.teamtrident.com/wp-content/uploads/2016/06/ISN-Logo-sm.png 80w, https://www.teamtrident.com/wp-content/uploads/2016/06/ISN-Logo-sm-50x50.png 50w, https://www.teamtrident.com/wp-content/uploads/2016/06/ISN-Logo-sm-45x45.png 45w" sizes="(max-width: 80px) 100vw, 80px"></a></li>
+                        <li><a href="http://www.adc-int.org/" target="_blank"><img width="50" height="67" src="https://www.teamtrident.com/wp-content/uploads/2016/05/ADCI-logo-xsmall.jpg" class="attachment-logo-thumbnail size-logo-thumbnail" alt=""></a></li>
+                    </ul>
+
+                    <span class="copyright">Copyright © 2024 Team Trident. All Rights Reserved.</span>
+                </div>
+            </div>
+        </footer>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        @await Component.InvokeAsync("Notyf")
+        @await RenderSectionAsync("Scripts", required: false)
+    </div>
+</body>
+</html>
