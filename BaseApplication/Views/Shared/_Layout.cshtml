@@ -8,7 +8,9 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BaseApplication.styles.css" asp-append-version="true" />
     <link href="~/css/all.css" rel="stylesheet" asp-append-version="true" />
+
 </head>
+
 <body data-new-gr-c-s-check-loaded="14.1152.0" data-gr-ext-installed="">
     <div id="wrapper">
         <header id="header">
@@ -25,7 +27,13 @@
                                     <li id="menu-item-33" class="last menu-item menu-item-type-post_type menu-item-object-page active page_item page-item-4 current_page_item menu-item-33">
                                         <a asp-controller="Home" asp-action="ContactUs">Contact Us</a>
                                     </li>
-                                    <li id="menu-item-359" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-359 "><a asp-area="" asp-controller="User" asp-action="SendEmailInvitations">Profile</a></li>
+                                    <li style="color:white" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-359">
+                                        Profile
+                                        <ul>
+                                            <li id="menu-item-359" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-359 "><a asp-area="" asp-controller="User" asp-action="SendEmailInvitations">Send Emails</a></li>
+                                        </ul>
+                                    </li>
+                                   
                                     <li id="menu-item-359" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-359 "><a asp-area="" asp-controller="Home" asp-action="Logout">Logout</a></li>
                                 }
                                 else

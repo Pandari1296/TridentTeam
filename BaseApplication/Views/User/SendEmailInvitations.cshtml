@@ -19,6 +19,7 @@
 
                     <div id="textboxContainer">
                         <input type="text" class="form-control" id="textbox" />
+                        <span>&nbsp;</span>
                     </div>
                 </div>
 
@@ -41,7 +42,8 @@
         $(document).ready(function () {
             $("#btnAdd").click(function () {
                 var newTextbox = $('<input type="text" class="form-control">');
-                $('#textboxContainer').append(newTextbox);
+                var space = $('<span>&nbsp</span>');
+                $('#textboxContainer').append(newTextbox, space);
             });
             $("#btnsend").click(function () {
                 debugger
