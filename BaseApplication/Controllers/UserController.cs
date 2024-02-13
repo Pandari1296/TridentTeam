@@ -116,5 +116,14 @@ namespace BaseApplication.Controllers
             string emailBody = System.IO.File.ReadAllText(templatePath);
             return emailBody.Replace("{{OTP_VALUE}}", otp);
         }
+        public async Task<IActionResult> SendEmailInvitations()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> SendEmailInvitations(List<string> email)
+        {
+            return View();
+        }
     }
 }

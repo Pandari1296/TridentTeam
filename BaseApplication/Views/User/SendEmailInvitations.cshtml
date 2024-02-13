@@ -1,0 +1,72 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Send Invitations ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Send Invitations </h1>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="SendInvitations">
+            <div class="col-lg-11">
+
+                <div class="form-group">
+                    <label class="control-label">To</label>
+                    @* <i class="fas fa-plus" id="btnAdd"></i> *@
+                    <input type="button" value="Add" id="btnAdd" />
+
+                    <div id="textboxContainer">
+                        <input type="text" class="form-control" id="textbox" />
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-lg-16">
+                    <input type="button" value="Send" id="btnsend"/>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $("#btnAdd").click(function () {
+                var newTextbox = $('<input type="text" class="form-control">');
+                $('#textboxContainer').append(newTextbox);
+            });
+            $("#btnsend").click(function () {
+                debugger
+                var emails = [];
+                $('#textboxContainer input[type="text"]').each(function () {
+                    var validateEmail = $(this).val();
+                     // var emailRegex = /^[a-zA-Z0-9._%+-]$/;
+                     var emailRegex = /^[a-zA-Z0-9._%+-]+(TeamTrident\.com | uitts\.com | tapinnov\.com)$/;
+                    if (emailRegex.test(validateEmail)) {
+                        emails.push($(this).val());
+                    }
+                    else {
+                        alert("Invalid email format. Only TeamTrident.com,uitts.com and tapinnov.com domains are allowed.")
+                    }
+                });
+                console.log(emails);
+                $.post('SendEmailInvitations', { email: emails },
+                    function (data) {
+
+                    }).fail(function () {
+                        console.log("error");
+                    });
+
+            });
+        });
+    </script>
+}
+
