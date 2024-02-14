@@ -396,3 +396,18 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/BaseApplication/bin/Debug/net8.0/BaseApplication.dll
+/BaseApplication/bin/Debug/net8.0/BaseApplication.exe
+/BaseApplication/bin/Debug/net8.0/BaseApplication.pdb
+/BaseApplication/bin/Debug/net8.0/BaseApplication.staticwebassets.runtime.json
+/BaseApplication/obj/Debug/net8.0/ref/BaseApplication.dll
+/BaseApplication/obj/Debug/net8.0/refint/BaseApplication.dll
+/BaseApplication/obj/Debug/net8.0/apphost.exe
+/BaseApplication/obj/Debug/net8.0/BaseApplication.csproj.CoreCompileInputs.cache
+/BaseApplication/obj/Debug/net8.0/BaseApplication.csproj.FileListAbsolute.txt
+/BaseApplication/obj/Debug/net8.0/BaseApplication.dll
+/BaseApplication/obj/Debug/net8.0/BaseApplication.genruntimeconfig.cache
+/BaseApplication/obj/Debug/net8.0/BaseApplication.pdb
+/BaseApplication/obj/Debug/net8.0/staticwebassets.build.json
+/BaseApplication/obj/Debug/net8.0/staticwebassets.development.json
+/BaseApplication/obj/Debug/net8.0/staticwebassets.pack.json
