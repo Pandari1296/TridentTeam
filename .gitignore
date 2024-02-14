@@ -1,0 +1,16 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/BaseApplication/obj/Debug/net8.0/BaseApplication.AssemblyInfo.cs
+/BaseApplication/obj/Debug/net8.0/BaseApplication.AssemblyInfoInputs.cache
+/BaseApplication/obj/Debug/net8.0/BaseApplication.assets.cache
+/BaseApplication/obj/Debug/net8.0/BaseApplication.csproj.AssemblyReference.cache
+/BaseApplication/obj/Debug/net8.0/BaseApplication.GeneratedMSBuildEditorConfig.editorconfig
+/BaseApplication/obj/Debug/net8.0/project.razor.vs.bin
+/BaseApplication/obj/BaseApplication.csproj.nuget.dgspec.json
+/BaseApplication/obj/BaseApplication.csproj.nuget.g.props
+/BaseApplication/obj/project.assets.json
+/BaseApplication/obj/project.nuget.cache
+/.vs/TridentTeam/v17/.wsuo
+/.vs/VSWorkspaceState.json
