@@ -3,8 +3,9 @@ using AutoMapper;
 using BaseApplication.Entity;
 using BaseApplication.Helpers;
 using BaseApplication.Models;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
-using static System.Net.WebRequestMethods;
+using Microsoft.EntityFrameworkCore;
 
 namespace BaseApplication.Controllers
 {
@@ -13,16 +14,21 @@ namespace BaseApplication.Controllers
         private readonly ApplicationDBContext _dbContext;
         private readonly IEmailHelper _emailHelper;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IMapper _mapper; 
+        private readonly IMapper _mapper;
         private readonly INotyfService _notyf;
+        private readonly IConfiguration _config;
+        private readonly IDataProtector _dataProtector;
 
-        public UserController(ApplicationDBContext dBContext, IEmailHelper emailHelper, IWebHostEnvironment webHostEnvironment, IMapper mapper, INotyfService notyf)
+        public UserController(ApplicationDBContext dBContext, IEmailHelper emailHelper, IWebHostEnvironment webHostEnvironment, IMapper mapper, INotyfService notyf,
+            IConfiguration configuration, IDataProtectionProvider provider)
         {
             this._dbContext = dBContext;
             this._emailHelper = emailHelper;
             _webHostEnvironment = webHostEnvironment;
             _mapper = mapper;
             _notyf = notyf;
+            _config = configuration;
+            _dataProtector = provider.CreateProtector("BaseApplication.UserController");
         }
 
         public IActionResult Index()
@@ -59,9 +65,26 @@ namespace BaseApplication.Controllers
             return View();
         }
 
-        public IActionResult Registration()
+        public async Task<IActionResult> Registration(string emailId)
         {
             UserModel userModel = new UserModel();
+            string registrationId = _dataProtector.Unprotect(emailId);
+            if(!string.IsNullOrWhiteSpace(registrationId))
+            {
+                int.TryParse(registrationId, out int id);
+                if (id > 0)
+                {
+                    var userDetails = await _dbContext.RegistrationEmails.FirstOrDefaultAsync(x => x.Id == id);
+                    if (userDetails != null)
+                        userModel.UserEmail = userDetails.Email;
+                }
+                else
+                    _notyf.Error("Invalid Link. Please try with original link.");
+            }
+            else
+            {
+                _notyf.Error("Error occured. Please try again.");
+            }
             return View(userModel);
         }
 
@@ -109,12 +132,71 @@ namespace BaseApplication.Controllers
             return View();
         }
 
+        public IActionResult EmailInvite()
+        {
+            EmailInviteModel model = new EmailInviteModel();
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EmailInvite(EmailInviteModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                List<RegistrationEmail> registrationEmails = [new RegistrationEmail { Email = model.Email1, IsActive = true }];
+                if (!string.IsNullOrWhiteSpace(model.Email2))
+                    registrationEmails.Add(new RegistrationEmail { Email = model.Email2, IsActive = true });
+                if (!string.IsNullOrWhiteSpace(model.Email3))
+                    registrationEmails.Add(new RegistrationEmail { Email = model.Email3, IsActive = true });
+                if (!string.IsNullOrWhiteSpace(model.Email4))
+                    registrationEmails.Add(new RegistrationEmail { Email = model.Email4, IsActive = true });
+                if (!string.IsNullOrWhiteSpace(model.Email5))
+                    registrationEmails.Add(new RegistrationEmail { Email = model.Email5, IsActive = true });
+                if (!string.IsNullOrWhiteSpace(model.Email6))
+                    registrationEmails.Add(new RegistrationEmail { Email = model.Email6, IsActive = true });
+                await _dbContext.RegistrationEmails.AddRangeAsync(registrationEmails);
+                int result = await _dbContext.SaveChangesAsync();
+                if (result > 0)
+                {
+                    foreach (var item in registrationEmails)
+                    {
+                        string encryptString = _dataProtector.Protect(item.Id.ToString());
+                        string registrationLink = $"{_config.GetValue<string>("ApplicationUrl")}User/Registration?emailId={encryptString}";
+                        string emailBody = GetRegistrationEmailBody(item.Email.Split('@')[0], registrationLink);
+                        var isEmailSent = _emailHelper.SendEmail(item.Email, "Team Trident Registration", emailBody);
+                        if (isEmailSent)
+                        {
+                            _notyf.Success("Email Invitation send successfully.");
+                            return RedirectToAction("EmailInvite", "User");
+                        }
+                        else
+                        {
+                            _notyf.Error("Error occured while sending email. Please try again.");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                _notyf.Error("Error occured. Please try again.");
+            }
+            return View();
+        }
+
         private string GetOtpEmailBody(string otp)
         {
             string templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Views", "EmailTemplates", "OtpTemplate.html");
 
             string emailBody = System.IO.File.ReadAllText(templatePath);
             return emailBody.Replace("{{OTP_VALUE}}", otp);
+        }
+
+        private string GetRegistrationEmailBody(string name, string registrationLink)
+        {
+            string templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Views", "EmailTemplates", "RegistrationTemplate.html");
+
+            string emailBody = System.IO.File.ReadAllText(templatePath);
+            return emailBody.Replace("{{Recipient_Name}}", name).Replace("{{Registration_Link}}", registrationLink);
         }
     }
 }

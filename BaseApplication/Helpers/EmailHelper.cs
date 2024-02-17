@@ -31,6 +31,7 @@ namespace BaseApplication.Helpers
             {
                 mail.Subject = subject;
                 mail.Body = body;
+                mail.IsBodyHtml = true;
 
                 using (SmtpClient smtpClient = new SmtpClient(smtpServer))
                 {

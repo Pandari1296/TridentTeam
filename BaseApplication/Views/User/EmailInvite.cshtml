@@ -1,0 +1,86 @@
+﻿@model BaseApplication.Models.EmailInviteModel
+
+@{
+    ViewData["Title"] = "EmailInvite";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Email Invite</h1>
+<hr />
+<div class="row">
+    <div class="col-md-11">
+        <form asp-action="EmailInvite">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Email1" class="control-label"></label>
+                        <input asp-for="Email1" class="form-control" />
+                        <span asp-validation-for="Email1" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Email2" class="control-label"></label>
+                        <input asp-for="Email2" class="form-control" />
+                        <span asp-validation-for="Email2" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Email3" class="control-label"></label>
+                        <input asp-for="Email3" class="form-control" />
+                        <span asp-validation-for="Email3" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Email4" class="control-label"></label>
+                        <input asp-for="Email4" class="form-control" />
+                        <span asp-validation-for="Email4" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Email5" class="control-label"></label>
+                        <input asp-for="Email5" class="form-control" />
+                        <span asp-validation-for="Email5" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Email6" class="control-label"></label>
+                        <input asp-for="Email6" class="form-control" />
+                        <span asp-validation-for="Email6" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group p-2">
+                        <input type="submit" value="Send Invite" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // $("#Email2").rules("remove", "required");
+            // $("#Email3").rules("remove", "required");
+            // $("#Email4").rules("remove", "required");
+            // $("#Email5").rules("remove", "required");
+            // $("#Email6").rules("remove", "required");
+        });
+    </script>
+}

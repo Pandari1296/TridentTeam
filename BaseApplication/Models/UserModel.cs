@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,7 +21,7 @@ namespace BaseApplication.Models
         //[RegularExpression(@"^(?i)([a-zA-Z0-9._%+-]+@(TeamTrident\.com|uitts\.com|tapinnov\.com))$", ErrorMessage = "Invalid email format")]
         //[EmailAddress(ErrorMessage = "Invalid Email Address")]
         [RegularExpression(@"^[a-zA-Z0-9._%+-]+@(TeamTrident\.com|uitts\.com|tapinnov\.com)$", ErrorMessage = "Invalid email format. Only @TeamTrident.com,@uitts.com and @tapinnov.com domains are allowed.")]
-
+        [ReadOnly(true)]
         public string? UserEmail { get; set; }
 
         [Required(ErrorMessage = "Please enter password")]
