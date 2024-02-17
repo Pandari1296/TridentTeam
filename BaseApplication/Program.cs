@@ -1,4 +1,5 @@
 using AspNetCoreHero.ToastNotification;
+using BaseApplication.DuoIntegration;
 using BaseApplication.Entity;
 using BaseApplication.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,9 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 builder.Services.AddSingleton<IEmailHelper, EmailHelper>(provider => new EmailHelper(builder.Configuration));
+
+var duoClientProvider = new DuoClientProvider(builder.Configuration);
+builder.Services.AddSingleton<IDuoClientProvider>(duoClientProvider);
 
 var app = builder.Build();
 

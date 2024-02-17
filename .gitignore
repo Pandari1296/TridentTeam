@@ -450,3 +450,7 @@ FodyWeavers.xsd
 /BaseApplication/bin/Debug/net8.0/runtimes/win/lib/net6.0/Microsoft.Data.SqlClient.dll
 /BaseApplication/bin/Debug/net8.0/runtimes/unix/lib/net6.0/Microsoft.Data.SqlClient.dll
 /BaseApplication/obj/BaseApplication.csproj.nuget.g.targets
+/BaseApplication/bin/Debug/net8.0/Microsoft.IdentityModel.Abstractions.dll
+/BaseApplication/bin/Debug/net8.0/Microsoft.IdentityModel.JsonWebTokens.dll
+/BaseApplication/bin/Debug/net8.0/Microsoft.IdentityModel.Logging.dll
+/BaseApplication/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll

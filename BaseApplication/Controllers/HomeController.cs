@@ -44,5 +44,10 @@ namespace BaseApplication.Controllers
             return RedirectToAction("Index");
         }
 
+        public IActionResult DuoCallBack()
+        {
+            return View();
+        }
+
     }
 }

@@ -1,11 +1,15 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using AutoMapper;
+using BaseApplication.DuoIntegration;
 using BaseApplication.Entity;
 using BaseApplication.Helpers;
 using BaseApplication.Models;
+using DuoUniversal;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace BaseApplication.Controllers
 {
@@ -18,9 +22,10 @@ namespace BaseApplication.Controllers
         private readonly INotyfService _notyf;
         private readonly IConfiguration _config;
         private readonly IDataProtector _dataProtector;
+        private readonly IDuoClientProvider _duoClientProvider;
 
         public UserController(ApplicationDBContext dBContext, IEmailHelper emailHelper, IWebHostEnvironment webHostEnvironment, IMapper mapper, INotyfService notyf,
-            IConfiguration configuration, IDataProtectionProvider provider)
+            IConfiguration configuration, IDataProtectionProvider provider, IDuoClientProvider duoClientProvider)
         {
             this._dbContext = dBContext;
             this._emailHelper = emailHelper;
@@ -29,6 +34,7 @@ namespace BaseApplication.Controllers
             _notyf = notyf;
             _config = configuration;
             _dataProtector = provider.CreateProtector("BaseApplication.UserController");
+            _duoClientProvider = duoClientProvider;
         }
 
         public IActionResult Index()
@@ -38,7 +44,7 @@ namespace BaseApplication.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(LoginModel loginModel)
+        public async Task<IActionResult> Index(LoginModel loginModel)
         {
             if (ModelState.IsValid)
             {
@@ -50,7 +56,27 @@ namespace BaseApplication.Controllers
                     {
                         HttpContext.Session.SetInt32("UserId", user.Id);
                         HttpContext.Session.SetString("UserName", user.FirstName + " ," + user.LastName);
-                        return RedirectToAction("Index", "Home");
+
+                        // Get a Duo client
+                        Client duoClient = _duoClientProvider.GetDuoClient();
+
+                        // Check if Duo seems to be healthy and able to service authentications.
+                        // If Duo were unhealthy, you could possibly send user to an error page, or implement a fail mode
+                        var isDuoHealthy = await duoClient.DoHealthCheck();
+
+                        // Generate a random state value to tie the authentication steps together
+                        string state = Client.GenerateState();
+                        // Save the state and username in the session for later
+                        HttpContext.Session.SetString(ApplicationConstant.STATE_SESSION_KEY, state);
+                        HttpContext.Session.SetString(ApplicationConstant.USERNAME_SESSION_KEY, loginModel.UserEmail);
+
+                        // Get the URI of the Duo prompt from the client.  This includes an embedded authentication request.
+                        string promptUri = duoClient.GenerateAuthUri(loginModel.UserEmail, state);
+
+                        // Redirect the user's browser to the Duo prompt.
+                        // The Duo prompt, after authentication, will redirect back to the configured Redirect URI to complete the authentication flow.
+                        // In this example, that is /duo_callback, which is implemented in Callback.cshtml.cs.
+                        return new RedirectResult(promptUri);
                     }
                     else
                     {
@@ -63,6 +89,59 @@ namespace BaseApplication.Controllers
                 _notyf.Error("Error occuredin Login.");
             }
             return View();
+        }
+
+        public async Task<IActionResult> DuoCallback(string state, string code)
+        {
+            // Duo should have sent a 'state' and 'code' parameter.  If either is missing or blank, something is wrong.
+            if (string.IsNullOrWhiteSpace(state))
+            {
+                throw new DuoException("Required state value was empty");
+            }
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                throw new DuoException("Required code value was empty");
+            }
+
+            // Get the Duo client again.  This can be either be cached in the session or newly built.
+            // The only stateful information in the Client is your configuration, so you could even use the same client for multiple
+            // user authentications if desired.
+            Client duoClient = _duoClientProvider.GetDuoClient();
+
+            // The original state value sent to Duo, as well as the username that started the auth, should be stored in the session.
+            var sessionState = HttpContext.Session.GetString(ApplicationConstant.STATE_SESSION_KEY);
+            var sessionUsername = HttpContext.Session.GetString(ApplicationConstant.USERNAME_SESSION_KEY);
+            // If either is missing, something is wrong.
+            if (string.IsNullOrEmpty(sessionState) || string.IsNullOrEmpty(sessionUsername))
+            {
+                throw new DuoException("State or username were missing from your session");
+            }
+
+            // Confirm the original state (from the session) matches the state sent by Duo; this helps prevents replay attacks or session takeover
+            if (!sessionState.Equals(state))
+            {
+                throw new DuoException("Session state did not match the expected state");
+            }
+
+            // Get a summary of the authentication from Duo.  This will trigger an exception if the username does not match.
+            IdToken token = await duoClient.ExchangeAuthorizationCodeFor2faResult(code, sessionUsername);
+
+            // Do whatever checks you want on the returned information.  For this example, we'll simply print it to an HTML page.
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+            string AuthResponse = System.Text.Json.JsonSerializer.Serialize(token, options);
+            if(!string.IsNullOrWhiteSpace(AuthResponse))
+            {
+                var response = JsonConvert.DeserializeObject<DuoAuthResponse>(AuthResponse);
+                if(response != null && response.AuthContext.result == "success")
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            DuoResponseModel model = new DuoResponseModel { AuthResponse = AuthResponse };
+            return View(model);
         }
 
         public async Task<IActionResult> Registration(string emailId)
@@ -115,7 +194,7 @@ namespace BaseApplication.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = _mapper.Map<User>(userModel);
+                var user = _mapper.Map<Entity.User>(userModel);
                 if (user != null && !string.IsNullOrWhiteSpace(user.Password))
                 {
                     user.Password = PasswordHelper.HashPassword(user.Password);
