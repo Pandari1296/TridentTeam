@@ -8,6 +8,10 @@ using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();
+builder.Logging.AddAzureWebAppDiagnostics();
+builder.Logging.AddConsole();
+
 // Add services to the container.
 builder.Services.AddNotyf(config => { config.DurationInSeconds = 10; config.IsDismissable = true; config.Position = NotyfPosition.TopRight; });
 builder.Services.AddControllersWithViews();

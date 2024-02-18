@@ -5,7 +5,7 @@ namespace BaseApplication.Helpers
 {
     public interface IEmailHelper
     {
-        bool SendEmail(string to, string subject, string body);
+        bool SendEmail(ILogger logger, string to, string subject, string body);
     }
     public class EmailHelper : IEmailHelper
     {
@@ -24,35 +24,38 @@ namespace BaseApplication.Helpers
             password = smtpSettings["Password"];
         }
 
-        public bool SendEmail(string to, string subject, string body)
+        public bool SendEmail(ILogger logger, string to, string subject, string body)
         {
-            bool isEmailSent = false;
-            using (MailMessage mail = new MailMessage(username, to))
+            try
             {
-                mail.Subject = subject;
-                mail.Body = body;
-                mail.IsBodyHtml = true;
+                logger.LogInformation("EmailHelper | SendEmail | Enterd into sending email to : " + to);
 
-                using (SmtpClient smtpClient = new SmtpClient(smtpServer))
+                bool isEmailSent = false;
+                using (MailMessage mail = new MailMessage(username, to))
                 {
-                    smtpClient.Port = port;
-                    //smtpClient.UseDefaultCredentials = true;
-                    smtpClient.Credentials = new NetworkCredential(username, password);
-                    smtpClient.EnableSsl = true;
-                    smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
+                    mail.Subject = subject;
+                    mail.Body = body;
+                    mail.IsBodyHtml = true;
 
-                    try
+                    using (SmtpClient smtpClient = new SmtpClient(smtpServer))
                     {
+                        smtpClient.Port = port;
+                        //smtpClient.UseDefaultCredentials = true;
+                        smtpClient.Credentials = new NetworkCredential(username, password);
+                        smtpClient.EnableSsl = true;
+                        smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
                         smtpClient.Send(mail);
                         isEmailSent = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        isEmailSent = false;
+                        logger.LogInformation("EmailHelper | SendEmail | Email sent successfully!");
                     }
                 }
+                return isEmailSent;
             }
-            return isEmailSent;
+            catch (Exception ex)
+            {
+                logger.LogError("EmailHelper | SendEmail | Exception occured into : " + ex.Message);
+                throw;
+            }
         }
     }
 }
