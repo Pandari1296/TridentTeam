@@ -225,6 +225,14 @@ namespace BaseApplication.Controllers
                         user.Password = PasswordHelper.HashPassword(user.Password);
                         _dbContext.Add(user);
                         await _dbContext.SaveChangesAsync();
+
+                        //Update Registartion Email to Activate..
+                        var registartedEmail = await _dbContext.RegistrationEmails.FirstOrDefaultAsync(email => email.Email == userModel.UserEmail);
+                        if (registartedEmail != null)
+                        {
+                            registartedEmail.IsActive = true;
+                            await _dbContext.SaveChangesAsync();
+                        }
                         _notyf.Success("User created successfully. Please login and continue.");
                         return RedirectToAction("Index", "Home");
                     }
@@ -257,17 +265,17 @@ namespace BaseApplication.Controllers
                 _logger.LogInformation("UserController | Registration | Entered into EmailInvite()..");
                 if (ModelState.IsValid)
                 {
-                    List<RegistrationEmail> registrationEmails = [new RegistrationEmail { Email = model.Email1, IsActive = true }];
+                    List<RegistrationEmail> registrationEmails = [new RegistrationEmail { Email = model.Email1 }];
                     if (!string.IsNullOrWhiteSpace(model.Email2))
-                        registrationEmails.Add(new RegistrationEmail { Email = model.Email2, IsActive = true });
+                        registrationEmails.Add(new RegistrationEmail { Email = model.Email2 });
                     if (!string.IsNullOrWhiteSpace(model.Email3))
-                        registrationEmails.Add(new RegistrationEmail { Email = model.Email3, IsActive = true });
+                        registrationEmails.Add(new RegistrationEmail { Email = model.Email3 });
                     if (!string.IsNullOrWhiteSpace(model.Email4))
-                        registrationEmails.Add(new RegistrationEmail { Email = model.Email4, IsActive = true });
+                        registrationEmails.Add(new RegistrationEmail { Email = model.Email4 });
                     if (!string.IsNullOrWhiteSpace(model.Email5))
-                        registrationEmails.Add(new RegistrationEmail { Email = model.Email5, IsActive = true });
+                        registrationEmails.Add(new RegistrationEmail { Email = model.Email5 });
                     if (!string.IsNullOrWhiteSpace(model.Email6))
-                        registrationEmails.Add(new RegistrationEmail { Email = model.Email6, IsActive = true });
+                        registrationEmails.Add(new RegistrationEmail { Email = model.Email6 });
                     await _dbContext.RegistrationEmails.AddRangeAsync(registrationEmails);
                     int result = await _dbContext.SaveChangesAsync();
                     if (result > 0)

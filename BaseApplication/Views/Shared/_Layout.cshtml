@@ -19,6 +19,7 @@
                         <ul id="menu-main-menu" class="menu">
                             @{
                                 int userId = Context.Session.GetInt32("UserId") ?? 0;
+                                string userName = Context.Session.GetString("UserName") ?? "";
                                 @if (userId > 0)
                                 {
                                     <li id="menu-item-359" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-359 "><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
