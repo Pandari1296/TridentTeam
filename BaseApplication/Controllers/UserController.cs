@@ -7,6 +7,7 @@ using BaseApplication.Models;
 using DuoUniversal;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Text.Json;
@@ -58,8 +59,9 @@ namespace BaseApplication.Controllers
                     if (user != null)
                     {
                         _logger.LogInformation("user verified successfully ! with UserId : " + user.Id);
-                        HttpContext.Session.SetInt32("UserId", user.Id);
-                        HttpContext.Session.SetString("UserName", user.FirstName + " ," + user.LastName);
+                        HttpContext.Session.SetInt32(ApplicationConstant.USERID_SESSION_KEY, user.Id);
+                        HttpContext.Session.SetString(ApplicationConstant.USERNAME_SESSION_KEY, user.FirstName + " ," + user.LastName);
+                        HttpContext.Session.SetInt32(ApplicationConstant.ROLEID_SESSION_KEY, user.RoleId);
 
                         // Get a Duo client
                         Client duoClient = _duoClientProvider.GetDuoClient();
@@ -174,9 +176,11 @@ namespace BaseApplication.Controllers
                 int.TryParse(registrationId, out int id);
                 if (id > 0)
                 {
-                    var userDetails = await _dbContext.RegistrationEmails.FirstOrDefaultAsync(x => x.Id == id);
+                    var userDetails = await _dbContext.RegistrationEmails.FirstOrDefaultAsync(x => x.Id == id && x.IsActive == false);
                     if (userDetails != null)
                         userModel.UserEmail = userDetails.Email;
+                    else
+                        _notyf.Error("The user is already registered.",5);
                 }
                 else
                     _notyf.Error("Invalid Link. Please try with original link.");
@@ -186,28 +190,6 @@ namespace BaseApplication.Controllers
                 _notyf.Error("Error occured. Please try again.");
             }
             return View(userModel);
-        }
-
-        [HttpPost]
-        public JsonResult GetEmailOtp(string userEmail)
-        {
-            string randomOtp = string.Empty;
-            if (!string.IsNullOrWhiteSpace(userEmail))
-            {
-                randomOtp = OtpGenerator.GenerateOtp();
-                //Send email
-                string emailBody = GetOtpEmailBody(randomOtp);
-                var isEmialSent = true;// this._emailHelper.SendEmail(userEmail, "One-Time Password (OTP)", emailBody);
-                if (isEmialSent)
-                {
-                    return Json(randomOtp);
-                }
-                else
-                {
-                    return Json("Problem occured while sending an email. Please check your email and try again.");
-                }
-            }
-            return Json(randomOtp);
         }
 
         [HttpPost]
@@ -222,19 +204,25 @@ namespace BaseApplication.Controllers
                     var user = _mapper.Map<Entity.User>(userModel);
                     if (user != null && !string.IsNullOrWhiteSpace(user.Password))
                     {
-                        user.Password = PasswordHelper.HashPassword(user.Password);
-                        _dbContext.Add(user);
-                        await _dbContext.SaveChangesAsync();
-
                         //Update Registartion Email to Activate..
-                        var registartedEmail = await _dbContext.RegistrationEmails.FirstOrDefaultAsync(email => email.Email == userModel.UserEmail);
+                        var registartedEmail = await _dbContext.RegistrationEmails.FirstOrDefaultAsync(email => email.Email == userModel.UserEmail && email.IsActive == false);
                         if (registartedEmail != null)
                         {
+                            user.RoleId = registartedEmail.RoleId;
                             registartedEmail.IsActive = true;
                             await _dbContext.SaveChangesAsync();
+
+                            //User Registration adding values..
+                            user.Password = PasswordHelper.HashPassword(user.Password);
+                            _dbContext.Add(user);
+                            await _dbContext.SaveChangesAsync();
+                            _notyf.Success("User created successfully. Please login and continue.");
+                            return RedirectToAction("Index", "Home");
                         }
-                        _notyf.Success("User created successfully. Please login and continue.");
-                        return RedirectToAction("Index", "Home");
+                        else
+                        {
+                            _notyf.Error("The user is not registered. Please try from source.");
+                        }
                     }
                 }
                 else
@@ -254,6 +242,8 @@ namespace BaseApplication.Controllers
         public IActionResult EmailInvite()
         {
             EmailInviteModel model = new EmailInviteModel();
+            model.Roles = _dbContext.Roles.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }).ToList();
+            model.Roles.Insert(0, new SelectListItem { Text = "Please select", Value = "" });
             return View(model);
         }
 
@@ -262,40 +252,45 @@ namespace BaseApplication.Controllers
         {
             try
             {
-                _logger.LogInformation("UserController | Registration | Entered into EmailInvite()..");
+                _logger.LogInformation("UserController | EmailInvite | Entered into EmailInvite()..");
                 if (ModelState.IsValid)
                 {
-                    List<RegistrationEmail> registrationEmails = [new RegistrationEmail { Email = model.Email1 }];
+                    int.TryParse(model.RoleId, out var roleId);
+                    List<RegistrationEmail> registrationEmails = [new RegistrationEmail { Email = model.Email1, RoleId = roleId }];
                     if (!string.IsNullOrWhiteSpace(model.Email2))
-                        registrationEmails.Add(new RegistrationEmail { Email = model.Email2 });
+                        registrationEmails.Add(new RegistrationEmail { Email = model.Email2, RoleId = roleId });
                     if (!string.IsNullOrWhiteSpace(model.Email3))
-                        registrationEmails.Add(new RegistrationEmail { Email = model.Email3 });
+                        registrationEmails.Add(new RegistrationEmail { Email = model.Email3, RoleId = roleId });
                     if (!string.IsNullOrWhiteSpace(model.Email4))
-                        registrationEmails.Add(new RegistrationEmail { Email = model.Email4 });
+                        registrationEmails.Add(new RegistrationEmail { Email = model.Email4, RoleId = roleId });
                     if (!string.IsNullOrWhiteSpace(model.Email5))
-                        registrationEmails.Add(new RegistrationEmail { Email = model.Email5 });
+                        registrationEmails.Add(new RegistrationEmail { Email = model.Email5, RoleId = roleId });
                     if (!string.IsNullOrWhiteSpace(model.Email6))
-                        registrationEmails.Add(new RegistrationEmail { Email = model.Email6 });
+                        registrationEmails.Add(new RegistrationEmail { Email = model.Email6, RoleId = roleId });
                     await _dbContext.RegistrationEmails.AddRangeAsync(registrationEmails);
                     int result = await _dbContext.SaveChangesAsync();
+
+                    _logger.LogInformation("UserController | EmailInvite | Data saved successfully and result is :" + result);
                     if (result > 0)
                     {
                         foreach (var item in registrationEmails)
                         {
                             try
                             {
-                                _logger.LogInformation("UserController | Registration | Started sendign invite for email : " + item.Email);
+                                _logger.LogInformation($"UserController | EmailInvite | Started sendign invite for email : {item.Email}");
                                 string encryptString = _dataProtector.Protect(item.Id.ToString());
                                 string registrationLink = $"{_config.GetValue<string>("ApplicationUrl")}User/Registration?emailId={encryptString}";
                                 string emailBody = GetRegistrationEmailBody(item.Email.Split('@')[0], registrationLink);
                                 var isEmailSent = _emailHelper.SendEmail(_logger, item.Email, "Team Trident Registration", emailBody);
                                 if (isEmailSent)
                                 {
+                                    _logger.LogInformation("UserController | EmailInvite | Email sent successfully for email :" + item.Email);
                                     _notyf.Success("Email Invitation send successfully.");
                                     return RedirectToAction("EmailInvite", "User");
                                 }
                                 else
                                 {
+                                    _logger.LogInformation("UserController | EmailInvite | Email sending failed for email :" + item.Email);
                                     _notyf.Error("Error occured while sending email. Please try again.");
                                 }
 
@@ -310,6 +305,7 @@ namespace BaseApplication.Controllers
                 }
                 else
                 {
+                    _logger.LogError("UserController | EmailInvite | Model state is invalid and error count :" + ModelState.ErrorCount);
                     _notyf.Error("Error occured. Please try again.");
                 }
                 return View();

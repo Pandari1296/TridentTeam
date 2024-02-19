@@ -12,6 +12,15 @@
         <form asp-action="EmailInvite">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="row">
+                <div class="col-md-9">
+                    <div class="form-group">
+                        <label asp-for="RoleId" class="control-label"></label>
+                        <select asp-items="Model.Roles" asp-for="RoleId" class="form-select"></select>
+                        <span asp-validation-for="RoleId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label asp-for="Email1" class="control-label"></label>

@@ -18,8 +18,8 @@
                     <nav id="nav" class="menu-main-menu-container">
                         <ul id="menu-main-menu" class="menu">
                             @{
-                                int userId = Context.Session.GetInt32("UserId") ?? 0;
-                                string userName = Context.Session.GetString("UserName") ?? "";
+                                int userId = Context.Session.GetInt32(ApplicationConstant.USERID_SESSION_KEY) ?? 0;
+                                int roleId = Context.Session.GetInt32(ApplicationConstant.ROLEID_SESSION_KEY) ?? 0;
                                 @if (userId > 0)
                                 {
                                     <li id="menu-item-359" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-359 "><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
@@ -29,7 +29,10 @@
                                     <li id="menu-item-33" class="last menu-item menu-item-type-post_type menu-item-object-page active page_item page-item-4 current_page_item menu-item-33">
                                         Profile
                                         <ul>
-                                            <li><a asp-controller="User" asp-action="EmailInvite">Send Email</a></li>
+                                            @if (roleId == 1)
+                                            {
+                                                <li><a asp-controller="User" asp-action="EmailInvite">Send Email</a></li>
+                                            }
                                         </ul>
                                     </li>
                                     <li id="menu-item-359" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-359 "><a asp-area="" asp-controller="Home" asp-action="Logout">Logout</a></li>

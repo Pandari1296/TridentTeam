@@ -1,9 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace BaseApplication.Models
 {
     public class EmailInviteModel
     {
+        [Display(Name = "Role :")]
+        [Required(ErrorMessage = "The role is required")]
+        public string RoleId { get; set; }
+
+        public IList<SelectListItem> Roles { get; set; }
+
         [Display(Name = "Email 1:")]
         [Required(ErrorMessage = "The email address is required")]
         [MaxLength(50, ErrorMessage = "Max length is 50 characters only.")]

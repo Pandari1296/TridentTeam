@@ -4,5 +4,7 @@
     {
         internal const string STATE_SESSION_KEY = "_State";
         internal const string USERNAME_SESSION_KEY = "_Username";
+        internal const string USERID_SESSION_KEY = "_Userid";
+        internal const string ROLEID_SESSION_KEY = "_Roleid";
     }
 }
