@@ -63,6 +63,7 @@ namespace BaseApplication.Controllers
                         HttpContext.Session.SetString(ApplicationConstant.USERNAME_SESSION_KEY, user.FirstName + " ," + user.LastName);
                         HttpContext.Session.SetInt32(ApplicationConstant.ROLEID_SESSION_KEY, user.RoleId);
 
+                        //return RedirectToAction("Index", "Home");
                         // Get a Duo client
                         Client duoClient = _duoClientProvider.GetDuoClient();
 
@@ -242,8 +243,9 @@ namespace BaseApplication.Controllers
         public IActionResult EmailInvite()
         {
             EmailInviteModel model = new EmailInviteModel();
-            model.Roles = _dbContext.Roles.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }).ToList();
-            model.Roles.Insert(0, new SelectListItem { Text = "Please select", Value = "" });
+            var roles = _dbContext.Roles.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }).ToList();
+            roles.Insert(0, new SelectListItem { Text = "Please select", Value = "" });
+            ViewBag.Roles = roles;
             return View(model);
         }
 
@@ -308,6 +310,8 @@ namespace BaseApplication.Controllers
                     _logger.LogError("UserController | EmailInvite | Model state is invalid and error count :" + ModelState.ErrorCount);
                     _notyf.Error("Error occured. Please try again.");
                 }
+                var roles = _dbContext.Roles.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }).ToList();
+                roles.Insert(0, new SelectListItem { Text = "Please select", Value = "" });
                 return View();
             }
             catch (Exception ex)

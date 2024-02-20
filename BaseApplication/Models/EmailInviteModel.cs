@@ -7,9 +7,7 @@ namespace BaseApplication.Models
     {
         [Display(Name = "Role :")]
         [Required(ErrorMessage = "The role is required")]
-        public string RoleId { get; set; }
-
-        public IList<SelectListItem> Roles { get; set; }
+        public string? RoleId { get; set; }
 
         [Display(Name = "Email 1:")]
         [Required(ErrorMessage = "The email address is required")]
