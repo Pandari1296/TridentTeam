@@ -3,8 +3,6 @@ using BaseApplication.DuoIntegration;
 using BaseApplication.Entity;
 using BaseApplication.Helpers;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 

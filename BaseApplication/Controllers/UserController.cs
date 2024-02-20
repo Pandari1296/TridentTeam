@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace BaseApplication.Controllers
@@ -62,29 +64,34 @@ namespace BaseApplication.Controllers
                         HttpContext.Session.SetInt32(ApplicationConstant.USERID_SESSION_KEY, user.Id);
                         HttpContext.Session.SetString(ApplicationConstant.USERNAME_SESSION_KEY, user.FirstName + " ," + user.LastName);
                         HttpContext.Session.SetInt32(ApplicationConstant.ROLEID_SESSION_KEY, user.RoleId);
+                        if (_webHostEnvironment.IsDevelopment())
+                        {
+                            return RedirectToAction("Index", "Home");
+                        }
+                        else
+                        {
+                            // Get a Duo client
+                            Client duoClient = _duoClientProvider.GetDuoClient();
 
-                        //return RedirectToAction("Index", "Home");
-                        // Get a Duo client
-                        Client duoClient = _duoClientProvider.GetDuoClient();
+                            // Check if Duo seems to be healthy and able to service authentications.
+                            // If Duo were unhealthy, you could possibly send user to an error page, or implement a fail mode
+                            var isDuoHealthy = await duoClient.DoHealthCheck();
 
-                        // Check if Duo seems to be healthy and able to service authentications.
-                        // If Duo were unhealthy, you could possibly send user to an error page, or implement a fail mode
-                        var isDuoHealthy = await duoClient.DoHealthCheck();
+                            // Generate a random state value to tie the authentication steps together
+                            string state = Client.GenerateState();
+                            // Save the state and username in the session for later
+                            HttpContext.Session.SetString(ApplicationConstant.STATE_SESSION_KEY, state);
+                            HttpContext.Session.SetString(ApplicationConstant.USERNAME_SESSION_KEY, loginModel.UserEmail);
 
-                        // Generate a random state value to tie the authentication steps together
-                        string state = Client.GenerateState();
-                        // Save the state and username in the session for later
-                        HttpContext.Session.SetString(ApplicationConstant.STATE_SESSION_KEY, state);
-                        HttpContext.Session.SetString(ApplicationConstant.USERNAME_SESSION_KEY, loginModel.UserEmail);
+                            // Get the URI of the Duo prompt from the client.  This includes an embedded authentication request.
+                            string promptUri = duoClient.GenerateAuthUri(loginModel.UserEmail, state);
 
-                        // Get the URI of the Duo prompt from the client.  This includes an embedded authentication request.
-                        string promptUri = duoClient.GenerateAuthUri(loginModel.UserEmail, state);
-
-                        _logger.LogInformation("user is redirected to url : " + promptUri);
-                        // Redirect the user's browser to the Duo prompt.
-                        // The Duo prompt, after authentication, will redirect back to the configured Redirect URI to complete the authentication flow.
-                        // In this example, that is /duo_callback, which is implemented in Callback.cshtml.cs.
-                        return new RedirectResult(promptUri);
+                            _logger.LogInformation("user is redirected to url : " + promptUri);
+                            // Redirect the user's browser to the Duo prompt.
+                            // The Duo prompt, after authentication, will redirect back to the configured Redirect URI to complete the authentication flow.
+                            // In this example, that is /duo_callback, which is implemented in Callback.cshtml.cs.
+                            return new RedirectResult(promptUri);
+                        }
                     }
                     else
                     {
@@ -181,7 +188,7 @@ namespace BaseApplication.Controllers
                     if (userDetails != null)
                         userModel.UserEmail = userDetails.Email;
                     else
-                        _notyf.Error("The user is already registered.",5);
+                        _notyf.Error("The user is already registered.", 5);
                 }
                 else
                     _notyf.Error("Invalid Link. Please try with original link.");
@@ -321,12 +328,84 @@ namespace BaseApplication.Controllers
             }
         }
 
-        private string GetOtpEmailBody(string otp)
+        public IActionResult ForgotPassword()
         {
-            string templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Views", "EmailTemplates", "OtpTemplate.html");
+            ForgotPasswordModel model = new ForgotPasswordModel();
+            return View(model);
+        }
 
-            string emailBody = System.IO.File.ReadAllText(templatePath);
-            return emailBody.Replace("{{OTP_VALUE}}", otp);
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
+        {
+            if (ModelState.IsValid && !string.IsNullOrWhiteSpace(model.UserEmail))
+            {
+                var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.UserEmail != null && x.UserEmail.ToLower() == model.UserEmail.ToLower());
+                if (user != null && user.Id > 0)
+                {
+                    _logger.LogInformation($"UserController | ForgotPassword | Started sendign invite for email : {model.UserEmail}");
+                    string encryptString = _dataProtector.Protect(user.Id.ToString());
+                    string registrationLink = $"{_config.GetValue<string>("ApplicationUrl")}User/ChangePassword?userId={encryptString}";
+                    string emailBody = GetForgotPasswordEmailBody(registrationLink);
+                    var isEmailSent = _emailHelper.SendEmail(_logger, model.UserEmail, "Team Trident Forgot Password", emailBody);
+                    if (isEmailSent)
+                    {
+                        _logger.LogInformation("UserController | ForgotPassword | Email sent successfully for email :" + model.UserEmail);
+                        _notyf.Success("Email Invitation send successfully.");
+                        return RedirectToAction("Index", "User");
+                    }
+                    else
+                    {
+                        _logger.LogInformation("UserController | ForgotPassword | Email sending failed for email :" + model.UserEmail);
+                        _notyf.Error("Error occured while sending email. Please try again.");
+                    }
+                }
+                else
+                {
+                    _notyf.Error("This is not a registered user. Please try with correct email.");
+                }
+            }
+            else
+            {
+                _notyf.Error("The user shouldn't be empty.");
+            }
+            return View();
+        }
+
+        public IActionResult ChangePassword(string userId)
+        {
+            ChangePasswordModel model = new ChangePasswordModel();
+            string sUserId = _dataProtector.Unprotect(userId);
+            if (!string.IsNullOrWhiteSpace(sUserId))
+            {
+                int.TryParse(sUserId, out int id);
+                if (id > 0)
+                    model.UserId = id;
+                else
+                    _notyf.Error("Invalid Link. Please try with original link.");
+            }
+            else
+                _notyf.Error("Error occured. Please try again.");
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
+        {
+            if (model.UserId > 0 && !string.IsNullOrWhiteSpace(model.Password))
+            {
+                var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == model.UserId);
+                if (user != null)
+                {
+                    user.Password = PasswordHelper.HashPassword(model.Password);
+                    await _dbContext.SaveChangesAsync();
+                    return RedirectToAction("Index", "User");
+                }
+                else
+                    _notyf.Error("This is not a registered user. Please try with correct user details.");
+            }
+            else
+                _notyf.Error("Invalid details. Please try with correct user details.");
+            return View();
         }
 
         private string GetRegistrationEmailBody(string name, string registrationLink)
@@ -336,5 +415,14 @@ namespace BaseApplication.Controllers
             string emailBody = System.IO.File.ReadAllText(templatePath);
             return emailBody.Replace("{{Recipient_Name}}", name).Replace("{{Registration_Link}}", registrationLink);
         }
+
+        private string GetForgotPasswordEmailBody(string resetLink)
+        {
+            string templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Views", "EmailTemplates", "ForgotPassword.html");
+
+            string emailBody = System.IO.File.ReadAllText(templatePath);
+            return emailBody.Replace("{{Reset_Link}}", resetLink);
+        }
+
     }
 }

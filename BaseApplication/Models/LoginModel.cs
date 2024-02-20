@@ -1,26 +1,32 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BaseApplication.Models
 {
-    public class UserModel
+    public class LoginModel
     {
-        [Display(Name = "First Name")]
-        [Required(ErrorMessage = "The first name is required")]
-        public string? FirstName { get; set; }
-
-        [Display(Name = "Last Name")]
-        [Required(ErrorMessage = "The last name is required")]
-        public string? LastName { get; set; }
-
-
         [Display(Name = "Email address")]
         [Required(ErrorMessage = "The email address is required")]
         [RegularExpression(@"^[a-zA-Z0-9._%+-]+@(TeamTrident\.com|uitts\.com|tapinnov\.com)$", ErrorMessage = "Invalid email format. Only @TeamTrident.com,@uitts.com and @tapinnov.com domains are allowed.")]
-        [ReadOnly(true)]
         public string? UserEmail { get; set; }
+
+        [Required(ErrorMessage = "Please enter password")]
+        [DataType(DataType.Password)]
+        public string? Password { get; set; }
+
+    }
+
+
+    public class ForgotPasswordModel
+    {
+        [Display(Name = "Email address")]
+        [Required(ErrorMessage = "The email address is required")]
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@(TeamTrident\.com|uitts\.com|tapinnov\.com)$", ErrorMessage = "Invalid email format. Only @TeamTrident.com,@uitts.com and @tapinnov.com domains are allowed.")]
+        public string? UserEmail { get; set; }
+    }
+
+    public class ChangePasswordModel
+    {
+        public int UserId { get; set; }
 
         [Required(ErrorMessage = "Please enter password")]
         [DataType(DataType.Password)]

@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Views\EmailTemplates\OtpTemplate.html">
+    <None Update="Views\EmailTemplates\ForgotPassword.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Views\EmailTemplates\RegistrationTemplate.html">
