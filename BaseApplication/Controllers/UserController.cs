@@ -408,6 +408,9 @@ namespace BaseApplication.Controllers
             return View();
         }
 
+
+        #region private methods..
+
         private string GetRegistrationEmailBody(string name, string registrationLink)
         {
             string templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Views", "EmailTemplates", "RegistrationTemplate.html");
@@ -424,5 +427,6 @@ namespace BaseApplication.Controllers
             return emailBody.Replace("{{Reset_Link}}", resetLink);
         }
 
+        #endregion
     }
 }

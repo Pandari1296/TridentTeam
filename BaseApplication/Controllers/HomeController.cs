@@ -1,6 +1,7 @@
 using AspNetCoreHero.ToastNotification.Abstractions;
 using BaseApplication.Models;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol;
 using System.Diagnostics;
 
 namespace BaseApplication.Controllers
@@ -42,11 +43,6 @@ namespace BaseApplication.Controllers
             _notyf.Success("Logged out successfully!");
             HttpContext.Session.Clear();
             return RedirectToAction("Index");
-        }
-
-        public IActionResult DuoCallBack()
-        {
-            return View();
         }
 
     }
