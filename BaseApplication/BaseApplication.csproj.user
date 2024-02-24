@@ -12,5 +12,6 @@
     <WebStackScaffolding_IsPartialViewSelected>False</WebStackScaffolding_IsPartialViewSelected>
     <WebStackScaffolding_IsReferencingScriptLibrariesSelected>True</WebStackScaffolding_IsReferencingScriptLibrariesSelected>
     <NameOfLastUsedPublishProfile>D:\TridentProject\TridentTeam\BaseApplication\Properties\PublishProfiles\TridentTeam - Web Deploy1.pubxml</NameOfLastUsedPublishProfile>
+    <WebStackScaffolding_DbContextTypeFullName>BaseApplication.Entity.ApplicationDBContext</WebStackScaffolding_DbContextTypeFullName>
   </PropertyGroup>
 </Project>

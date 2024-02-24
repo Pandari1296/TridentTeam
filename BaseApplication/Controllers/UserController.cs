@@ -246,6 +246,15 @@ namespace BaseApplication.Controllers
                 throw;
             }
         }
+        public async Task<IActionResult> ClientRegistration()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> ClientRegistration(ClientModel clientModel)
+        {
+            return View();
+        }
 
         public IActionResult EmailInvite()
         {

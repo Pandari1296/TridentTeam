@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using BaseApplication.Models;
 
 namespace BaseApplication.Entity;
 
@@ -59,4 +60,6 @@ public partial class ApplicationDBContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+public DbSet<BaseApplication.Models.ClientModel> ClientModel { get; set; } = default!;
 }
