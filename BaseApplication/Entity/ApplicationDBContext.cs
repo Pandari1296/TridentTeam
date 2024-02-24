@@ -12,15 +12,25 @@ public partial class ApplicationDBContext : DbContext
     {
     }
 
+    public virtual DbSet<Coordinator> Coordinators { get; set; }
 
     public virtual DbSet<RegistrationEmail> RegistrationEmails { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
 
+    public virtual DbSet<TridentClient> TridentClients { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Coordinator>(entity =>
+        {
+            entity.ToTable("Coordinator");
+
+            entity.Property(e => e.Name).HasMaxLength(100);
+        });
+
         modelBuilder.Entity<RegistrationEmail>(entity =>
         {
             entity.ToTable("RegistrationEmail");
@@ -37,6 +47,20 @@ public partial class ApplicationDBContext : DbContext
         {
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Name).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<TridentClient>(entity =>
+        {
+            entity.ToTable("TridentClient");
+
+            entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Phone).HasMaxLength(50);
+
+            entity.HasOne(d => d.Coordinator).WithMany(p => p.TridentClients)
+                .HasForeignKey(d => d.CoordinatorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_TridentClient_Coordinator");
         });
 
         modelBuilder.Entity<User>(entity =>
