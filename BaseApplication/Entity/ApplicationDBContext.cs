@@ -53,9 +53,10 @@ public partial class ApplicationDBContext : DbContext
         {
             entity.ToTable("TridentClient");
 
-            entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Phone).HasMaxLength(50);
+            entity.Property(e => e.Status).HasDefaultValue(false);
 
             entity.HasOne(d => d.Coordinator).WithMany(p => p.TridentClients)
                 .HasForeignKey(d => d.CoordinatorId)
@@ -85,5 +86,9 @@ public partial class ApplicationDBContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 
-public DbSet<BaseApplication.Models.ClientModel> ClientModel { get; set; } = default!;
+    public DbSet<BaseApplication.Models.TridentClientModel> TridentClientModel { get; set; } = default!;
+
+    //public DbSet<BaseApplication.Models.TridentClientModel> TridentClientModel { get; set; } = default!;
+
+    //public DbSet<BaseApplication.Models.ClientModel> ClientModel { get; set; } = default!;
 }

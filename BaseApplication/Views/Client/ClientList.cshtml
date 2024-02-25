@@ -1,0 +1,76 @@
+﻿@model IEnumerable<BaseApplication.Models.TridentClientModel>
+@{
+    ViewData["Title"] = "ClientList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>ClientList</h1>
+
+<p>
+    <a asp-action="ClientRegistration">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Phone)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CoordinatorId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Phone)
+                </td>
+                <td>
+                    @if (item.CoordinatorId > 0)
+                    {
+                        List<SelectListItem> selectListItems = ViewBag.Coordinators;
+                        var pointofContacts = selectListItems?.Select(x => new SelectListItem { Text = x.Text, Value = x.Value.ToString() }).ToList();
+
+                        if (pointofContacts != null && pointofContacts.Any())
+                        {
+                            var matchingContacts = pointofContacts.Where(x => x.Value == item.CoordinatorId.ToString()).ToList();
+                            <text>@(matchingContacts.Count > 0 ? matchingContacts[0].Text : "No matching contacts found.")</text>
+                        }
+                    }
+                </td>
+                <td>
+                    @if (item.Status == true)
+                    {
+                        <text>Active</text>
+                    }
+                    else
+                    {
+                        <text>InActive</text>
+                    }
+                </td>
+                <td>
+                    <a asp-action="EditClient" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="DeleteClient" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

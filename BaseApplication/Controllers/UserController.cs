@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Newtonsoft.Json;
+using System.Collections.Immutable;
+using System.Data.Entity;
 using System.Diagnostics;
 using System.Text.Json;
 
@@ -246,16 +248,6 @@ namespace BaseApplication.Controllers
                 throw;
             }
         }
-        public async Task<IActionResult> ClientRegistration()
-        {
-            return View();
-        }
-        [HttpPost]
-        public async Task<IActionResult> ClientRegistration(ClientModel clientModel)
-        {
-            return View();
-        }
-
         public IActionResult EmailInvite()
         {
             EmailInviteModel model = new EmailInviteModel();
