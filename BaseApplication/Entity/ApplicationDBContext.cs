@@ -56,6 +56,12 @@ public partial class ApplicationDBContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Phone).HasMaxLength(50);
+            entity.Property(e => e.AlternatePhone).HasMaxLength(50);
+            entity.Property(e => e.ZipCode).HasMaxLength(50);
+            entity.Property(e => e.State).HasMaxLength(50);
+            entity.Property(e => e.City).HasMaxLength(50);
+            entity.Property(e => e.Address1).HasMaxLength(50);
+            entity.Property(e => e.Notes).HasMaxLength(50);
             entity.Property(e => e.Status).HasDefaultValue(false);
 
             entity.HasOne(d => d.Coordinator).WithMany(p => p.TridentClients)

@@ -40,6 +40,7 @@ namespace BaseApplication.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    tridentClient.Notes = "(" + DateTime.Now + ")" +"-"+ tridentClient.Notes;
                     var config = new MapperConfiguration(cfg =>
                     {
                         cfg.CreateMap<TridentClientModel, TridentClient>();
@@ -76,6 +77,12 @@ namespace BaseApplication.Controllers
                     Name = client.Name,
                     Email = client.Email,
                     Phone = client.Phone,
+                    AlternatePhone = client.AlternatePhone,
+                    ZipCode = client.ZipCode,
+                    State = client.State,
+                    City = client.City,
+                    Address1 = client.Address1,   
+                    Notes = client.Notes,
                     CoordinatorId = client.CoordinatorId,
                     Status = client.Status
                 }).ToList();
@@ -106,10 +113,28 @@ namespace BaseApplication.Controllers
                 Name = client.Name,
                 Email = client.Email,
                 Phone = client.Phone,
+                AlternatePhone = client.AlternatePhone,
+                ZipCode = client.ZipCode,
+                State = client.State,
+                City = client.City,
+                Address1 = client.Address1,
+                Notes = client.Notes,
                 CoordinatorId = client.CoordinatorId,
                 Status = client.Status
             }).ToList().Where(m => m.Id == id).FirstOrDefault();
 
+            if (tridentClientModels?.Notes != null)
+            {
+                string notes = tridentClientModels.Notes;
+
+                int notesIndex = notes.IndexOf(')');
+
+                if (notesIndex != -1 && notesIndex < notes.Length - 1)
+                {
+                    string UpdatedNote = notes.Substring(notesIndex + 1);
+                    tridentClientModels.Notes = UpdatedNote.Substring(1);
+                }
+            }
             if (tridentClientModels == null)
             {
                 return NotFound();
@@ -124,6 +149,7 @@ namespace BaseApplication.Controllers
             {
                 try
                 {
+                    tridentClientModel.Notes = "(" + DateTime.Now + ")" + "-" + tridentClientModel.Notes;
                     var config = new MapperConfiguration(cfg => { cfg.CreateMap<TridentClientModel, TridentClient>(); });
                     var mapper = config.CreateMapper();
                     var client = mapper.Map<TridentClientModel, TridentClient>(tridentClientModel);
@@ -152,6 +178,12 @@ namespace BaseApplication.Controllers
                 Name = client.Name,
                 Email = client.Email,
                 Phone = client.Phone,
+                AlternatePhone = client.AlternatePhone,
+                ZipCode = client.ZipCode,
+                State = client.State,
+                City = client.City,
+                Address1 = client.Address1,
+                Notes = client.Notes,
                 CoordinatorId = client.CoordinatorId,
                 Status = client.Status
             }).FirstOrDefault(m => m.Id == id);

@@ -1,9 +1,12 @@
 ﻿@model BaseApplication.Models.TridentClientModel
+
 @{
     ViewData["Title"] = "ClientRegistration";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 <h1>ClientRegistration</h1>
+
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -21,11 +24,15 @@
             </div>
             <div class="form-group">
                 <label asp-for="Phone" class="control-label"></label>
-                <input asp-for="Phone" class="form-control" />
+                <input asp-for="Phone" id="txtPhone" placeholder="(XXX) XXX-XXXX" pattern="\(\d{3}\) \d{3}-\d{4}" class="form-control" />
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
             <div class="form-group">
-
+                <label asp-for="AlternatePhone" class="control-label"></label>
+                <input asp-for="AlternatePhone" id="txtAltPhone" placeholder="(XXX) XXX-XXXX" pattern="\(\d{3}\) \d{3}-\d{4}" class="form-control" />
+                <span asp-validation-for="AlternatePhone" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="CoordinatorId" class="control-label"></label>
                 <select asp-items="@ViewBag.Coordinators" asp-for="CoordinatorId" class="form-select"></select>
                 <span asp-validation-for="CoordinatorId" class="text-danger"></span>
@@ -41,7 +48,32 @@
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="CreateClient" class="btn btn-primary" />
+                <label asp-for="ZipCode" class="control-label"></label>
+                <input asp-for="ZipCode" id="txtZipCode" class="form-control" />
+                <span asp-validation-for="ZipCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="State" class="control-label"></label>
+                <input asp-for="State" id="txtState" readonly="true" class="form-control" />
+                <span asp-validation-for="State" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="City" class="control-label"></label>
+                <input asp-for="City" id="txtCity" readonly="true" class="form-control" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address1" class="control-label"></label>
+                <input asp-for="Address1" class="form-control" />
+                <span asp-validation-for="Address1" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Notes" class="control-label"></label>
+                <input asp-for="Notes" class="form-control" />
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+            <div class="form-group m-2">
+                <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
     </div>
@@ -52,7 +84,25 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#txtZipCode').on('mouseleave', function () {
+                debugger
+                const zipCode = $('#txtZipCode').val();
+                debugger
+                const cityStateResponse = $.ajax({
+                    url: `https://api.zippopotam.us/us/${zipCode}`,
+                    dataType: 'json'
+                }).done(function (data) {
+                    $('#txtCity').val(data.places[0]['place name'])
+                    $('#txtState').val(data.places[0]['state']);
+                }).fail(function (xhr, status, error) {
+                    $('#txtCity').val("")
+                    $('#txtState').val("");
+                });
+            });
+        });
+    </script>
 }

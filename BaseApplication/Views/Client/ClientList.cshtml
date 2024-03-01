@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<BaseApplication.Models.TridentClientModel>
+
 @{
     ViewData["Title"] = "ClientList";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -22,28 +23,48 @@
                 @Html.DisplayNameFor(model => model.Phone)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CoordinatorId)
+                @Html.DisplayNameFor(model => model.AlternatePhone)
             </th>
+            @* <th>
+                @Html.DisplayNameFor(model => model.CoordinatorId)
+            </th> *@
             <th>
                 @Html.DisplayNameFor(model => model.Status)
             </th>
-            <th>Actions</th>
+            <th>
+                @Html.DisplayNameFor(model => model.ZipCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.State)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.City)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Address1)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Notes)
+            </th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Phone)
-                </td>
-                <td>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Phone)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AlternatePhone)
+            </td>
+                @* <td>
                     @if (item.CoordinatorId > 0)
                     {
                         List<SelectListItem> selectListItems = ViewBag.Coordinators;
@@ -55,7 +76,7 @@
                             <text>@(matchingContacts.Count > 0 ? matchingContacts[0].Text : "No matching contacts found.")</text>
                         }
                     }
-                </td>
+                </td> *@
                 <td>
                     @if (item.Status == true)
                     {
@@ -66,11 +87,26 @@
                         <text>InActive</text>
                     }
                 </td>
-                <td>
-                    <a asp-action="EditClient" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="DeleteClient" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
-        }
+            <td>
+                @Html.DisplayFor(modelItem => item.ZipCode)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.State)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.City)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address1)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Notes)
+            </td>
+            <td>
+                <a asp-action="EditClient" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="DeleteClient" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
     </tbody>
 </table>
