@@ -47,3 +47,11 @@ steps:
     WebAppName: 'TridentTeamOne'
     packageForLinux: '$(Build.ArtifactStagingDirectory)/**/*.zip'
     enableCustomDeployment: true
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: '438c1754-7df3-4abf-a55a-63ef7ea13814'
+    ConnectedServiceName: 'tridentoneDevConnection'
+    appName: 'TridentTeamOne'
+    package: '$(Build.ArtifactStagingDirectory)/*.zip'
+    deploymentMethod: 'auto'
